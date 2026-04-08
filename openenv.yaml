@@ -1,0 +1,42 @@
+name: supportops-openenv
+runtime: python3.11
+entrypoint: python -m uvicorn app.api:app --host 0.0.0.0 --port 7860 --workers 1 --loop uvloop
+interface:
+  type: http
+  port: 7860
+  endpoints:
+    - path: /health
+      method: GET
+      description: Health check endpoint
+    - path: /reset
+      method: POST
+      description: Reset environment for a task
+    - path: /step
+      method: POST
+      description: Execute environment step
+    - path: /state
+      method: GET
+      description: Get current environment state
+metadata:
+  description: Customer support ticket resolution simulation environment
+  version: "0.1.0"
+  author: SupportOps Team
+  tasks:
+    - billing_refund
+    - csv_upload_bug
+    - sso_outage
+  task_types:
+    billing_refund:
+      description: Handle billing refund requests
+      priority: high
+    csv_upload_bug:
+      description: Resolve CSV upload failures
+      priority: critical
+    sso_outage:
+      description: Fix enterprise SSO outages
+      priority: critical
+  features:
+    - deterministic_grading
+    - dense_reward_shaping
+    - multi_task_support
+    - production_ready_api
