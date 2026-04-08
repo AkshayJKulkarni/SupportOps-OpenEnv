@@ -1,3 +1,13 @@
+---
+title: SupportOps OpenEnv
+emoji: 🐳
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+Updated for HF deployment
 # SupportOps OpenEnv
 
 SupportOps OpenEnv is a production-ready Python simulation environment for customer support training and evaluation. It includes a FastAPI backend, OpenEnv-compatible `step()`, `reset()`, and `observe()` APIs, deterministic graders, dense reward shaping, and three SaaS support tasks.
