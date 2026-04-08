@@ -1,0 +1,13 @@
+include README.md
+include openenv.yaml
+include Dockerfile
+include inference.py
+include requirements.txt
+include pyproject.toml
+include .gitignore
+recursive-include app *.py
+recursive-include app *.yaml
+recursive-include app *.json
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .git*

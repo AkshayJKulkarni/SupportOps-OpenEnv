@@ -1,3 +1,37 @@
+Metadata-Version: 2.4
+Name: supportops-openenv
+Version: 0.1.0
+Summary: Customer support ticket simulation environment
+Author-email: Akshay J Kulkarni <akshay@example.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/akshayjkulkarni/supportops-openenv
+Project-URL: Repository, https://github.com/akshayjkulkarni/supportops-openenv
+Project-URL: Issues, https://github.com/akshayjkulkarni/supportops-openenv/issues
+Project-URL: Documentation, https://github.com/akshayjkulkarni/supportops-openenv#readme
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.100.0
+Requires-Dist: uvicorn[standard]>=0.23.0
+Requires-Dist: pydantic>=2.8.0
+Requires-Dist: openai>=1.10.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+
 ---
 title: SupportOps OpenEnv
 emoji: 🐳
@@ -34,13 +68,9 @@ SupportOps OpenEnv is a production-ready Python simulation environment for custo
 
 ## Quick Start
 
-1. Install the package:
+1. Install dependencies:
 
 ```bash
-# Option 1: Install from source (recommended for development)
-pip install -e .
-
-# Option 2: Install from requirements.txt (legacy)
 pip install -r requirements.txt
 ```
 
@@ -48,12 +78,6 @@ pip install -r requirements.txt
 
 ```bash
 uvicorn app.api:app --host 0.0.0.0 --port 7860
-```
-
-Or use the provided console script:
-
-```bash
-supportops-inference --help
 ```
 
 3. Reset the environment:

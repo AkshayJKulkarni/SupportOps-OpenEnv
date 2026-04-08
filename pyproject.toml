@@ -1,0 +1,20 @@
+[project]
+name = "supportops-openenv"
+version = "0.1.0"
+description = "SupportOps OpenEnv - Customer support ticket resolution environment"
+authors = [
+    { name = "Akshay J Kulkarni" }
+]
+requires-python = ">=3.10"
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "openai",
+    "python-dotenv"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
