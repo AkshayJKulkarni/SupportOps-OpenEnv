@@ -8,6 +8,7 @@ include .gitignore
 recursive-include app *.py
 recursive-include app *.yaml
 recursive-include app *.json
+recursive-include server *.py
 global-exclude *.pyc
 global-exclude __pycache__
 global-exclude .git*
