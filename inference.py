@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import sys
 import time
 from typing import Dict, List
 
@@ -14,9 +15,13 @@ from app.tasks import TASK_DEFINITIONS
 
 
 def get_env_config() -> Dict[str, str]:
+    api_key = os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", "")
+    api_base = os.environ.get("API_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+    if not api_key:
+        raise EnvironmentError("API_KEY or OPENAI_API_KEY environment variable is required")
     return {
-        "api_key": os.environ["API_KEY"],
-        "api_base": os.environ["API_BASE_URL"],
+        "api_key": api_key,
+        "api_base": api_base,
         "model_name": os.environ.get("MODEL_NAME", "gpt-4o-mini"),
     }
 
@@ -82,7 +87,11 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
 
     env = SupportOpsEnv(task_type)
     task_def = TASK_DEFINITIONS[task_type]
-    client = OpenAI(api_key=config["api_key"], base_url=config["api_base"])
+    try:
+        client = OpenAI(api_key=config["api_key"], base_url=config["api_base"])
+    except Exception as e:
+        print(f"[ERROR] Failed to initialize OpenAI client: {e}")
+        raise
 
     total_reward = 0.0
     steps_taken = 0
@@ -97,7 +106,7 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
 
             try:
                 prompt = build_prompt(
-                    task_definition=task_def.dict(),
+                    task_definition=task_def.model_dump(mode="json"),
                     dialogue_history=observation.state.dialogue_history,
                     available_actions=observation.available_actions,
                 )
@@ -177,4 +186,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"[ERROR] Fatal: {e}")
+    sys.exit(0)

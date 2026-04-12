@@ -49,7 +49,7 @@ class SupportOpsEnv:
 
         # Compute grading and reward
         graded_score = grade_action(self.task_id, action)
-        reward_value = compute_reward(self.task_id, action, self.state.dict())
+        reward_value = compute_reward(self.task_id, action, self.state.model_dump(mode="json"))
         self.state.reward_score = reward_value
 
         # Update resolution state based on action
