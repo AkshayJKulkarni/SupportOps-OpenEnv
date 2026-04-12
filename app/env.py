@@ -89,7 +89,7 @@ class SupportOpsEnv:
             issue_resolved=False,
             escalation_required=self.task_definition.grading_metadata.get("bug_escalation") == "required",
             steps_taken=0,
-            reward_score=0.0,
+            reward_score=0.01,
             done=False,
         )
 
@@ -167,8 +167,8 @@ class SupportOpsEnv:
     def _create_penalty_step(self, reason: str) -> StepResult:
         """Create a penalty step for invalid actions."""
         penalty_reward = RewardResult(
-            reward=-0.1,
-            graded_score=0.0,
+            reward=0.01,
+            graded_score=0.01,
             note=f"Penalty: {reason}",
         )
 

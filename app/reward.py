@@ -20,5 +20,5 @@ def compute_reward(task_id: TaskType, action: AgentAction, state: dict) -> float
     if state.get("steps_taken", 0) > 5:
         reward -= 0.05
 
-    reward = max(min(reward, 1.0), 0.0)
+    reward = max(min(reward, 0.99), 0.01)
     return round(reward, 3)

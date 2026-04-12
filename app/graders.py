@@ -3,16 +3,21 @@
 from .models import AgentAction, TaskType
 
 
+def _clamp(score: float) -> float:
+    """Clamp score to strictly open interval (0, 1)."""
+    return round(max(0.01, min(score, 0.99)), 3)
+
+
 def grade_action(task_id: TaskType, action: AgentAction) -> float:
-    """Deterministic grading returns a score between 0.0 and 1.0."""
+    """Deterministic grading returns a score strictly between 0.0 and 1.0."""
     message = action.message.strip().lower()
     if task_id == TaskType.billing_refund:
-        return _grade_billing_refund(message)
+        return _clamp(_grade_billing_refund(message))
     if task_id == TaskType.csv_upload_bug:
-        return _grade_csv_upload_bug(message)
+        return _clamp(_grade_csv_upload_bug(message))
     if task_id == TaskType.sso_outage:
-        return _grade_sso_outage(message)
-    return 0.0
+        return _clamp(_grade_sso_outage(message))
+    return 0.01
 
 
 def _grade_billing_refund(message: str) -> float:
@@ -27,7 +32,7 @@ def _grade_billing_refund(message: str) -> float:
         score += 0.15
     if "resolve" in message or "process" in message:
         score += 0.1
-    return min(score, 1.0)
+    return score
 
 
 def _grade_csv_upload_bug(message: str) -> float:
@@ -42,7 +47,7 @@ def _grade_csv_upload_bug(message: str) -> float:
         score += 0.2
     if "follow up" in message or "update" in message:
         score += 0.1
-    return min(score, 1.0)
+    return score
 
 
 def _grade_sso_outage(message: str) -> float:
@@ -57,4 +62,4 @@ def _grade_sso_outage(message: str) -> float:
         score += 0.15
     if "investigate" in message or "restore" in message or "workaround" in message:
         score += 0.1
-    return min(score, 1.0)
+    return score
