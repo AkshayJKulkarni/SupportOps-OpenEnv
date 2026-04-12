@@ -48,9 +48,10 @@ HEURISTIC_RESPONSES = {
 
 
 def get_env_config() -> Dict[str, str]:
-    """Get configuration from environment variables."""
+    """Get configuration from validator proxy first, then local fallback."""
     return {
-        "api_key": os.environ.get("OPENAI_API_KEY", ""),
+        # Phase 2 validator injects API_KEY
+        "api_key": os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", ""),
         "api_base": os.environ.get("API_BASE_URL", "https://api.openai.com/v1"),
         "model_name": os.environ.get("MODEL_NAME", "gpt-4o-mini"),
     }
@@ -303,7 +304,7 @@ def main():
             print(f"[INFO] API Base: {config.get('api_base', 'https://api.openai.com/v1')}")
             print("[INFO] OpenAI API key provided - will attempt to use OpenAI client")
         else:
-            print("[INFO] No OPENAI_API_KEY provided - will use heuristic baseline agent")
+            print("[INFO] No API_KEY/OPENAI_API_KEY provided - will use heuristic baseline agent")
             if not OPENAI_AVAILABLE:
                 print("[INFO] OpenAI package not available - heuristic baseline guaranteed")
 
