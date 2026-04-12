@@ -56,7 +56,7 @@ class TicketState(BaseModel, SerializationMixin):
     issue_resolved: bool = False
     escalation_required: bool = False
     steps_taken: int = 0
-    reward_score: float = 0.0
+    reward_score: float = 0.01
     done: bool = False
 
 

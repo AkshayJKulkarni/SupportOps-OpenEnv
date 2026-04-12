@@ -48,7 +48,7 @@ class SupportOpsEnv:
         self.state.dialogue_history.append(action.message)
 
         # Compute grading and reward
-        graded_score = grade_action(self.task_id, action)
+        graded_score = max(0.01, min(0.99, grade_action(self.task_id, action)))
         reward_value = compute_reward(self.task_id, action, self.state.model_dump(mode="json"))
         self.state.reward_score = reward_value
 

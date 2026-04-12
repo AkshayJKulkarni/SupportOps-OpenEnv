@@ -70,7 +70,7 @@ async def global_exception_handler(request: Request, exc: Exception):
             error="Internal server error",
             detail="An unexpected error occurred",
             code=500,
-        ).dict(),
+        ).model_dump(),
     )
 
 
@@ -113,7 +113,7 @@ async def reset_environment(request: ResetRequest = ResetRequest()) -> ResetResp
                 error="Reset failed",
                 detail=str(e),
                 code=500,
-            ).dict(),
+            ).model_dump(),
         )
 
 
@@ -138,12 +138,14 @@ async def step_environment(action: TicketAction) -> StepResponse:
                     error="Episode completed",
                     detail="Environment episode already completed. Call /reset first.",
                     code=400,
-                ).dict(),
+                ).model_dump(),
             )
 
         logger.info(f"Executing step with action: {action.action_type.value}")
 
         result = ENV.step(action)
+        result.reward.graded_score = max(0.01, min(0.99, result.reward.graded_score))
+        result.reward.reward = max(0.01, min(0.99, result.reward.reward))
 
         return StepResponse(
             observation=result.observation,
@@ -161,7 +163,7 @@ async def step_environment(action: TicketAction) -> StepResponse:
                 error="Step failed",
                 detail=str(e),
                 code=500,
-            ).dict(),
+            ).model_dump(),
         )
 
 
@@ -187,7 +189,7 @@ async def get_environment_state() -> StateResponse:
                 error="State retrieval failed",
                 detail=str(e),
                 code=500,
-            ).dict(),
+            ).model_dump(),
         )
 
 
@@ -205,7 +207,7 @@ async def infer_with_openai(request: OpenAIRequest):
                     error="API key required",
                     detail="OpenAI API key not provided",
                     code=400,
-                ).dict(),
+                ).model_dump(),
             )
 
         client = OpenAI(api_key=api_key)
@@ -227,7 +229,7 @@ async def infer_with_openai(request: OpenAIRequest):
                 error="Inference failed",
                 detail=str(e),
                 code=500,
-            ).dict(),
+            ).model_dump(),
         )
 
 
