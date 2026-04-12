@@ -11,7 +11,6 @@ try:
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
-    print("[WARNING] OpenAI package not available. Install with: pip install openai")
 
 from app.env import SupportOpsEnv
 from app.models import ActionType, TaskType, TicketAction
@@ -181,40 +180,49 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
     final_score = 0.0
     use_heuristic = False
 
-    # Initialize OpenAI client only if OpenAI usage is enabled and the package is available
+    # Initialize OpenAI client - prioritize validator environment variables
     client = None
-    if use_openai and OPENAI_AVAILABLE:
-        try:
-            api_key = os.environ["API_KEY"]
-            base_url = os.environ["API_BASE_URL"]
-            print(f"[INFO] Using validator base URL: {base_url}")
-            client = OpenAI(api_key=api_key, base_url=base_url)
-        except KeyError:
-            if config.get("api_key") and config.get("api_base"):
-                try:
-                    print(f"[INFO] Validator env vars missing, falling back to local config base: {config.get('api_base')}")
-                    client = OpenAI(
-                        api_key=config["api_key"],
-                        base_url=config.get("api_base", "https://api.openai.com/v1")
-                    )
-                except Exception as e:
-                    print(f"[WARNING] Failed to initialize OpenAI client from local config: {e}. Using heuristic baseline.")
-                    client = None
-                    use_heuristic = True
-            else:
-                print("[INFO] Validator env vars missing and local OpenAI config incomplete. Using heuristic baseline agent.")
+    use_heuristic = False
+    
+    # First, try to use validator-provided environment variables
+    try:
+        api_key = os.environ["API_KEY"]
+        base_url = os.environ["API_BASE_URL"]
+        print(f"[INFO] Using validator base URL: {base_url}")
+        
+        # Try to import OpenAI here if not already available
+        if not OPENAI_AVAILABLE:
+            try:
+                import openai as OpenAI
+                print("[INFO] OpenAI package imported successfully for validator use")
+            except ImportError:
+                raise Exception("OpenAI package not available but validator environment variables are set")
+        
+        client = OpenAI.OpenAI(api_key=api_key, base_url=base_url)
+        
+    except KeyError:
+        # Validator environment variables not set, try local config
+        print("[INFO] Validator env vars not found, checking local config")
+        if config.get("api_key") and OPENAI_AVAILABLE:
+            try:
+                print(f"[INFO] Using local config base: {config.get('api_base')}")
+                client = OpenAI.OpenAI(
+                    api_key=config["api_key"],
+                    base_url=config.get("api_base", "https://api.openai.com/v1")
+                )
+            except Exception as e:
+                print(f"[WARNING] Failed to initialize OpenAI client from local config: {e}. Using heuristic baseline.")
                 client = None
                 use_heuristic = True
-        except Exception as e:
-            print(f"[WARNING] Failed to initialize OpenAI client via validator env: {e}. Using heuristic baseline.")
+        else:
+            print("[INFO] No valid OpenAI configuration found. Using heuristic baseline agent.")
             client = None
             use_heuristic = True
-    else:
+            
+    except Exception as e:
+        print(f"[WARNING] Failed to initialize OpenAI client: {e}. Using heuristic baseline.")
+        client = None
         use_heuristic = True
-        if not config.get("api_key"):
-            print("[INFO] No OPENAI_API_KEY provided. Using heuristic baseline agent.")
-        elif not OPENAI_AVAILABLE:
-            print("[INFO] OpenAI package not available. Using heuristic baseline agent.")
 
     try:
         # Reset environment
