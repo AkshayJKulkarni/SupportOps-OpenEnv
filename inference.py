@@ -7,7 +7,7 @@ import time
 from typing import Dict, List, Optional
 
 try:
-    import openai as Openai
+    from openai import OpenAI
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
@@ -181,17 +181,32 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
     final_score = 0.0
     use_heuristic = False
 
-    # Initialize OpenAI client only if we have an API key and OpenAI is available
+    # Initialize OpenAI client only if OpenAI usage is enabled and the package is available
     client = None
-    if use_openai and config["api_key"] and config["api_base"] and OPENAI_AVAILABLE:
+    if use_openai and OPENAI_AVAILABLE:
         try:
-            print(f"[INFO] Using LiteLLM proxy base: {config['api_base']}")
-            client = Openai.OpenAI(
-                api_key=config["api_key"],
-                base_url=config.get("api_base", "https://api.openai.com/v1")
-            )
+            api_key = os.environ["API_KEY"]
+            base_url = os.environ["API_BASE_URL"]
+            print(f"[INFO] Using validator base URL: {base_url}")
+            client = OpenAI(api_key=api_key, base_url=base_url)
+        except KeyError:
+            if config.get("api_key") and config.get("api_base"):
+                try:
+                    print(f"[INFO] Validator env vars missing, falling back to local config base: {config.get('api_base')}")
+                    client = OpenAI(
+                        api_key=config["api_key"],
+                        base_url=config.get("api_base", "https://api.openai.com/v1")
+                    )
+                except Exception as e:
+                    print(f"[WARNING] Failed to initialize OpenAI client from local config: {e}. Using heuristic baseline.")
+                    client = None
+                    use_heuristic = True
+            else:
+                print("[INFO] Validator env vars missing and local OpenAI config incomplete. Using heuristic baseline agent.")
+                client = None
+                use_heuristic = True
         except Exception as e:
-            print(f"[WARNING] Failed to initialize OpenAI client: {e}. Using heuristic baseline.")
+            print(f"[WARNING] Failed to initialize OpenAI client via validator env: {e}. Using heuristic baseline.")
             client = None
             use_heuristic = True
     else:
