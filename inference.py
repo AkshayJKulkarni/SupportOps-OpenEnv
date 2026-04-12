@@ -48,11 +48,13 @@ HEURISTIC_RESPONSES = {
 
 
 def get_env_config() -> Dict[str, str]:
-    """Get configuration from validator proxy first, then local fallback."""
+    """Strict validator proxy-first configuration."""
+    api_key = os.environ["API_KEY"] if "API_KEY" in os.environ else os.environ.get("OPENAI_API_KEY", "")
+    api_base = os.environ["API_BASE_URL"] if "API_BASE_URL" in os.environ else "https://api.openai.com/v1"
+
     return {
-        # Phase 2 validator injects API_KEY
-        "api_key": os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", ""),
-        "api_base": os.environ.get("API_BASE_URL", "https://api.openai.com/v1"),
+        "api_key": api_key,
+        "api_base": api_base,
         "model_name": os.environ.get("MODEL_NAME", "gpt-4o-mini"),
     }
 
@@ -181,8 +183,9 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
 
     # Initialize OpenAI client only if we have an API key and OpenAI is available
     client = None
-    if use_openai and config.get("api_key") and OPENAI_AVAILABLE:
+    if use_openai and config["api_key"] and config["api_base"] and OPENAI_AVAILABLE:
         try:
+            print(f"[INFO] Using LiteLLM proxy base: {config['api_base']}")
             client = Openai.OpenAI(
                 api_key=config["api_key"],
                 base_url=config.get("api_base", "https://api.openai.com/v1")
