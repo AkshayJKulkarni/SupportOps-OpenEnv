@@ -95,7 +95,7 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
 
     total_reward = 0.0
     steps_taken = 0
-    final_score = 0.0
+    final_score = 0.01
 
     try:
         observation = env.reset(task_type)
@@ -123,7 +123,7 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
 
                 result = env.step(action)
                 total_reward += result.reward.reward
-                final_score = result.reward.graded_score
+                final_score = max(0.01, min(0.99, result.reward.graded_score))
                 observation = result.observation
                 time.sleep(0.1)
 
@@ -139,6 +139,7 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
                 except Exception:
                     break
 
+        final_score = max(0.01, min(0.99, final_score))
         print(f"[END] Task {task_type.value} completed: steps={steps_taken}, final_score={final_score:.3f}, total_reward={total_reward:.3f}")
         return {
             "task_type": task_type.value,
@@ -153,7 +154,7 @@ def run_inference_for_task(task_type: TaskType, config: Dict[str, str], max_step
         return {
             "task_type": task_type.value,
             "steps_taken": steps_taken,
-            "final_score": 0.0,
+            "final_score": 0.01,
             "total_reward": total_reward,
             "completed": False,
             "error": str(e),
